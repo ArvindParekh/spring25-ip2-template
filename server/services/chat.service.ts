@@ -12,8 +12,24 @@ import { Message, MessageResponse } from '../types/message';
  */
 export const saveChat = async (chatPayload: CreateChatPayload): Promise<ChatResponse> =>
   // TODO: Task 3 - Implement the saveChat function. Refer to other service files for guidance.
-  ({ error: 'Not implemented' });
+  {
+    try {
+      const { participants, messages } = chatPayload;
+      const messageIds: string[] = [];
 
+      if (messages) {
+        for (const message of messages) {
+          const newMessage = await MessageModel.create(message);
+          messageIds.push(newMessage._id.toString());
+        }
+      }
+
+      const chat = await ChatModel.create({ participants, messages: messageIds });
+      return chat;
+    } catch (error) {
+      return { error: 'Error when saving a chat' };
+    }
+  };
 /**
  * Creates and saves a new message document in the database.
  * @param messageData - The message data to be created.
@@ -21,7 +37,14 @@ export const saveChat = async (chatPayload: CreateChatPayload): Promise<ChatResp
  */
 export const createMessage = async (messageData: Message): Promise<MessageResponse> =>
   // TODO: Task 3 - Implement the createMessage function. Refer to other service files for guidance.
-  ({ error: 'Not implemented' });
+  {
+    try {
+      const message = await MessageModel.create(messageData);
+      return message;
+    } catch (error) {
+      return { error: 'Error when saving a message' };
+    }
+  };
 
 /**
  * Adds a message ID to an existing chat.
@@ -31,7 +54,21 @@ export const createMessage = async (messageData: Message): Promise<MessageRespon
  */
 export const addMessageToChat = async (chatId: string, messageId: string): Promise<ChatResponse> =>
   // TODO: Task 3 - Implement the addMessageToChat function. Refer to other service files for guidance.
-  ({ error: 'Not implemented' });
+  {
+    try {
+      const chat = await ChatModel.findByIdAndUpdate(
+        chatId,
+        { $push: { messages: messageId } },
+        { new: true },
+      );
+      if (!chat) {
+        return { error: 'Chat not found' };
+      }
+      return chat;
+    } catch (error) {
+      return { error: 'Error when adding a message to a chat' };
+    }
+  };
 
 /**
  * Retrieves a chat document by its ID.
@@ -40,7 +77,17 @@ export const addMessageToChat = async (chatId: string, messageId: string): Promi
  */
 export const getChat = async (chatId: string): Promise<ChatResponse> =>
   // TODO: Task 3 - Implement the getChat function. Refer to other service files for guidance.
-  ({ error: 'Not implemented' });
+  {
+    try {
+      const chat = await ChatModel.findById(chatId);
+      if (!chat) {
+        return { error: 'Chat not found' };
+      }
+      return chat;
+    } catch (error) {
+      return { error: 'Error when getting a chat' };
+    }
+  };
 
 /**
  * Retrieves chats that include all the provided participants.
@@ -50,7 +97,15 @@ export const getChat = async (chatId: string): Promise<ChatResponse> =>
  */
 export const getChatsByParticipants = async (p: string[]): Promise<Chat[]> =>
   // TODO: Task 3 - Implement the getChatsByParticipants function. Refer to other service files for guidance.
-  [];
+  {
+    try {
+      const chats = await ChatModel.find({ participants: { $all: p } });
+      return chats;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
 
 /**
  * Adds a participant to an existing chat.
@@ -61,4 +116,18 @@ export const getChatsByParticipants = async (p: string[]): Promise<Chat[]> =>
  */
 export const addParticipantToChat = async (chatId: string, userId: string): Promise<ChatResponse> =>
   // TODO: Task 3 - Implement the addParticipantToChat function. Refer to other service files for guidance.
-  ({ error: 'Not implemented' });
+  {
+    try {
+      const chat = await ChatModel.findByIdAndUpdate(
+        chatId,
+        { $push: { participants: userId } },
+        { new: true },
+      );
+      if (!chat) {
+        return { error: 'Chat not found' };
+      }
+      return chat;
+    } catch (error) {
+      return { error: 'Error when adding a participant to a chat' };
+    }
+  };
