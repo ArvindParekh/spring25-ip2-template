@@ -34,6 +34,7 @@ const useAuth = (authType: 'login' | 'signup') => {
    */
   const togglePasswordVisibility = () => {
     // TODO - Task 1: Toggle password visibility
+    setShowPassword((prev) => !prev);
   };
 
   /**
@@ -47,6 +48,19 @@ const useAuth = (authType: 'login' | 'signup') => {
     field: 'username' | 'password' | 'confirmPassword',
   ) => {
     // TODO - Task 1: Handle input changes for the fields
+    switch (field) {
+      case 'username':
+        setUsername(e.target.value);
+        break;
+      case 'password':
+        setPassword(e.target.value);
+        break;
+      case 'confirmPassword':
+        setPasswordConfirmation(e.target.value);
+        break;
+      default:
+        throw new Error(`Invalid field: ${field}`);
+    }
   };
 
   /**
@@ -58,6 +72,27 @@ const useAuth = (authType: 'login' | 'signup') => {
   const validateInputs = (): boolean => {
     // TODO - Task 1: Validate inputs for login and signup forms
     // Display any errors to the user
+    if (authType === 'login') {
+      if (!username.trim() || !password.trim()) {
+        setErr('Username and password are required');
+        return false;
+      }
+      return true;
+    }
+   else if (authType === 'signup') {
+      if (!username.trim() || !password.trim() || !passwordConfirmation.trim()) {
+        setErr('Username and password are required');
+        return false;
+      }
+      if (password !== passwordConfirmation) {
+        setErr('Passwords do not match');
+        return false;
+      }
+      return true;
+    } else {
+      setErr('Invalid authentication type');
+      return false;
+    }
   };
 
   /**
@@ -70,18 +105,22 @@ const useAuth = (authType: 'login' | 'signup') => {
     event.preventDefault();
 
     // TODO - Task 1: Validate inputs
+    if (!validateInputs()) {
+      return;
+    }
 
     let user: User;
 
     try {
       // TODO - Task 1: Handle the form submission, calling appropriate API routes
       // based on the auth type
-
+      user = authType === 'login' ? await loginUser({ username, password }) : await createUser({ username, password });
       // Redirect to home page on successful login/signup
       setUser(user);
       navigate('/home');
     } catch (error) {
       // TODO - Task 1: Display error message
+      setErr(error instanceof Error ? error.message : 'An unknown error occurred');
     }
   };
 
