@@ -34,7 +34,7 @@ const useAuth = (authType: 'login' | 'signup') => {
    */
   const togglePasswordVisibility = () => {
     // TODO - Task 1: Toggle password visibility
-    setShowPassword((prev) => !prev);
+    setShowPassword(prev => !prev);
   };
 
   /**
@@ -79,7 +79,7 @@ const useAuth = (authType: 'login' | 'signup') => {
       }
       return true;
     }
-   else if (authType === 'signup') {
+    if (authType === 'signup') {
       if (!username.trim() || !password.trim() || !passwordConfirmation.trim()) {
         setErr('Username and password are required');
         return false;
@@ -89,10 +89,9 @@ const useAuth = (authType: 'login' | 'signup') => {
         return false;
       }
       return true;
-    } else {
-      setErr('Invalid authentication type');
-      return false;
     }
+    setErr('Invalid authentication type');
+    return false;
   };
 
   /**
@@ -114,7 +113,10 @@ const useAuth = (authType: 'login' | 'signup') => {
     try {
       // TODO - Task 1: Handle the form submission, calling appropriate API routes
       // based on the auth type
-      user = authType === 'login' ? await loginUser({ username, password }) : await createUser({ username, password });
+      user =
+        authType === 'login'
+          ? await loginUser({ username, password })
+          : await createUser({ username, password });
       // Redirect to home page on successful login/signup
       setUser(user);
       navigate('/home');

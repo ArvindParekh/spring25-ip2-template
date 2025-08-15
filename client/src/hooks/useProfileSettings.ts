@@ -63,7 +63,7 @@ const useProfileSettings = () => {
    */
   const togglePasswordVisibility = () => {
     // TODO: Task 1 - Toggle the password visibility.
-    setShowPassword((prev) => !prev);
+    setShowPassword(prev => !prev);
   };
 
   /**
@@ -97,8 +97,8 @@ const useProfileSettings = () => {
       setSuccessMessage('Password reset successful');
     } catch (error) {
       setErrorMessage('Error resetting password');
-    } 
-    
+    }
+
     setNewPassword('');
     setConfirmNewPassword('');
     // Display success or error messages accordingly, and clear the password fields.

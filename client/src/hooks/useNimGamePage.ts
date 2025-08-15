@@ -39,7 +39,7 @@ const useNimGamePage = (gameState: GameInstance) => {
     // updating the state.
 
     const { value } = e.target;
-    const numObjects = parseInt(value);
+    const numObjects = parseInt(value, 10);
     if (numObjects >= 1 && numObjects <= 3) {
       setMove(numObjects);
     }

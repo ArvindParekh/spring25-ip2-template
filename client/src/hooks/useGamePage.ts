@@ -37,8 +37,8 @@ const useGamePage = () => {
       }
       // Always navigate back to the games page
       navigate('/games');
-    } catch (error) {
-      setError(`Error leaving game: ${error as string}`);
+    } catch (err) {
+      setError(`Error leaving game: ${err as string}`);
     }
   };
 
@@ -52,8 +52,8 @@ const useGamePage = () => {
         setGameState(game);
         socket?.emit('joinGame', id);
         setJoinedGameID(id);
-      } catch (error) {
-        setError(`Error joining game: ${error as string}`);
+      } catch (err) {
+        setError(`Error joining game: ${err as string}`);
       }
     };
 

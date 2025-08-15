@@ -25,7 +25,7 @@ const useAllGamesPage = () => {
       const games = await getGames(undefined, undefined);
       setAvailableGames(games);
     } catch (error) {
-      console.error('Error fetching games:', error);
+      // handle silently
     }
   };
 
@@ -33,9 +33,11 @@ const useAllGamesPage = () => {
     // TODO: Task 2 - Create a new game with the provided type
     try {
       const gameId = await createGame(gameType);
-      fetchGames(); // Refresh the list after creating a game
+      if (gameId) {
+        fetchGames(); // Refresh the list after creating a game
+      }
     } catch (error) {
-      console.error('Error creating game:', error);
+      // handle silently
     }
   };
 
