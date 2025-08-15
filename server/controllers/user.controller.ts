@@ -127,6 +127,15 @@ const userController = (socket: FakeSOSocket) => {
    */
   const getUsers = async (_: Request, res: Response): Promise<void> => {
     // TODO: Task 1 - Implement the getUsers endpoint
+    try {
+      const users = await getUsersList();
+      if ('error' in users) {
+        throw Error(users.error);
+      }
+      res.status(200).json(users);
+    } catch (error) {
+      res.status(500).send(`Error when getting users: ${error}`);
+    }
   };
 
   /**
@@ -221,7 +230,7 @@ const userController = (socket: FakeSOSocket) => {
   router.get('/getUser/:username', getUser);
   router.delete('/deleteUser/:username', deleteUser);
   router.patch('/updateBiography', updateBiography);
-
+  router.get('/getUsers', getUsers);
   // TODO: Task 1- Add a route for updating a user's biography
   // TODO: Task 1 - Add a route for getting all users
 
