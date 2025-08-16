@@ -299,6 +299,22 @@ describe('Test userController', () => {
     });
 
     // TODO: Task 1 - Add more tests
+    it('should return an error if there is an error while searching the database', async () => {
+      getUsersListSpy.mockResolvedValueOnce({ error: 'Error finding users' });
+
+      const response = await supertest(app).get(`/user/getUsers`);
+
+      expect(response.status).toBe(500);
+    });
+
+    it('should return an empty array if no users are found', async () => {
+      getUsersListSpy.mockResolvedValueOnce([]);
+
+      const response = await supertest(app).get(`/user/getUsers`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([]);
+    });
   });
 
   describe('DELETE /deleteUser', () => {
@@ -349,5 +365,39 @@ describe('Test userController', () => {
     });
 
     // TODO: Task 1 - Add more tests
+    it('should return an error if there is an error while updating the biography', async () => {
+      const mockReqBody = {
+        username: mockUser.username,
+        biography: 'This is my new bio',
+      };
+
+      updatedUserSpy.mockResolvedValueOnce({ error: 'Error updating user' });
+
+      const response = await supertest(app).patch('/user/updateBiography').send(mockReqBody);
+
+      expect(response.status).toBe(500);
+    });
+
+    it('should return a 400 error for missing username', async () => {
+      const mockReqBody = {
+        biography: 'This is my new bio',
+      };
+
+      const response = await supertest(app).patch('/user/updateBiography').send(mockReqBody);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual('Invalid user body');
+    });
+
+    it('should return a 400 error for missing biography', async () => {
+      const mockReqBody = {
+        username: mockUser.username,
+      };
+
+      const response = await supertest(app).patch('/user/updateBiography').send(mockReqBody);
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual('Invalid user body');
+    });
   });
 });

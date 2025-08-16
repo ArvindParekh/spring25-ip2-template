@@ -1,6 +1,5 @@
 import ChatModel from '../models/chat.model';
 import MessageModel from '../models/messages.model';
-import UserModel from '../models/users.model';
 import { Chat, ChatResponse, CreateChatPayload } from '../types/chat';
 import { Message, MessageResponse } from '../types/message';
 
@@ -17,10 +16,13 @@ export const saveChat = async (chatPayload: CreateChatPayload): Promise<ChatResp
       const { participants, messages } = chatPayload;
       const messageIds: string[] = [];
 
-      if (messages) {
-        for (const message of messages) {
-          const newMessage = await MessageModel.create(message);
-          messageIds.push(newMessage._id.toString());
+      if (messages && messages.length > 0) {
+        try {
+          const messagePromises = messages.map(message => MessageModel.create(message));
+          const createdMessages = await Promise.all(messagePromises);
+          messageIds.push(...createdMessages.map(msg => msg._id.toString()));
+        } catch (messageError) {
+          return { error: 'Error when saving a chat' };
         }
       }
 
@@ -85,7 +87,7 @@ export const getChat = async (chatId: string): Promise<ChatResponse> =>
       }
       return chat;
     } catch (error) {
-      return { error: 'Error when getting a chat' };
+      return { error: 'Chat not found' };
     }
   };
 
@@ -102,7 +104,6 @@ export const getChatsByParticipants = async (p: string[]): Promise<Chat[]> =>
       const chats = await ChatModel.find({ participants: { $all: p } });
       return chats;
     } catch (error) {
-      console.error(error);
       return [];
     }
   };

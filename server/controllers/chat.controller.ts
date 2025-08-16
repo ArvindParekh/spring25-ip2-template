@@ -58,9 +58,9 @@ const chatController = (socket: FakeSOSocket) => {
    */
   const isAddParticipantRequestValid = (req: AddParticipantRequest): boolean => {
     // TODO: Task 3 - Implement the isAddParticipantRequestValid function.
-    const { username } = req.body;
+    const { userId } = req.body;
 
-    return username !== undefined && username.trim() !== '';
+    return userId !== undefined && userId.trim() !== '';
   };
 
   /**
@@ -102,7 +102,6 @@ const chatController = (socket: FakeSOSocket) => {
       res
         .status(500)
         .json({ error: error instanceof Error ? error.message : 'Failed to create chat' });
-      return;
     }
   };
 
@@ -145,17 +144,21 @@ const chatController = (socket: FakeSOSocket) => {
         throw new Error(chat.error);
       }
 
+      const populatedChat = await populateDocument(chat._id!.toString(), 'chat');
+      if (populatedChat && 'error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
       socket.to(chatId).emit('chatUpdate', {
-        chat,
+        chat: populatedChat,
         type: 'newMessage',
       });
 
-      res.status(200).json(chat);
+      res.status(200).json(populatedChat);
     } catch (error) {
       res
         .status(500)
         .json({ error: error instanceof Error ? error.message : 'Failed to add message to chat' });
-      return;
     }
   };
 
@@ -186,7 +189,6 @@ const chatController = (socket: FakeSOSocket) => {
       res
         .status(500)
         .json({ error: error instanceof Error ? error.message : 'Failed to get chat' });
-      return;
     }
   };
 
@@ -206,9 +208,11 @@ const chatController = (socket: FakeSOSocket) => {
     try {
       const chats = await getChatsByParticipants([username]);
 
+      const populatePromises = chats.map(chat => populateDocument(chat._id.toString(), 'chat'));
+      const populatedResults = await Promise.all(populatePromises);
+
       const populatedChats: Chat[] = [];
-      for (const chat of chats) {
-        const populatedChat = await populateDocument(chat._id.toString(), 'chat');
+      for (const populatedChat of populatedResults) {
         if (populatedChat && 'error' in populatedChat) {
           throw new Error(populatedChat.error);
         }
@@ -220,7 +224,6 @@ const chatController = (socket: FakeSOSocket) => {
       res
         .status(500)
         .json({ error: error instanceof Error ? error.message : 'Failed to get chats by user' });
-      return;
     }
   };
 
@@ -237,7 +240,7 @@ const chatController = (socket: FakeSOSocket) => {
   ): Promise<void> => {
     // TODO: Task 3 - Implement the addParticipantToChatRoute function
     const { chatId } = req.params;
-    const { username } = req.body;
+    const { userId } = req.body;
 
     if (!isAddParticipantRequestValid(req)) {
       res.status(400).json({ error: 'Invalid request body' });
@@ -245,7 +248,7 @@ const chatController = (socket: FakeSOSocket) => {
     }
 
     try {
-      const chat = await addParticipantToChat(chatId, username);
+      const chat = await addParticipantToChat(chatId, userId);
       if ('error' in chat) {
         throw new Error(chat.error);
       }
@@ -255,7 +258,6 @@ const chatController = (socket: FakeSOSocket) => {
       res.status(500).json({
         error: error instanceof Error ? error.message : 'Failed to add participant to chat',
       });
-      return;
     }
   };
 

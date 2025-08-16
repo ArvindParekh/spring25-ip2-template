@@ -203,7 +203,7 @@ const userController = (socket: FakeSOSocket) => {
         res.status(400).send('Invalid user body');
         return;
       }
-      
+
       const updatedUser = await updateUser(username, { biography });
       if ('error' in updatedUser) {
         throw Error(updatedUser.error);

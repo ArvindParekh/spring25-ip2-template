@@ -90,5 +90,5 @@ export interface UpdateBiographyRequest extends Request {
   body: {
     username: string;
     biography: string;
-  }
+  };
 }
