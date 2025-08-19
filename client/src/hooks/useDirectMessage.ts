@@ -30,7 +30,7 @@ const useDirectMessage = () => {
       const updatedChat = await sendMessage(
         {
           msg: newMessage,
-          msgFrom: user._id!,
+          msgFrom: user.username,
           msgDateTime: new Date(),
         } as Omit<Message, 'type'>,
         selectedChat._id,
@@ -62,7 +62,7 @@ const useDirectMessage = () => {
     // between the current user and the chosen user. Update the appropriate state variables and emit a socket
     // event to join the chat room. Hide the create panel after creating the chat.
     if (chatToCreate) {
-      const newChat = await createChat([user._id!, chatToCreate]);
+      const newChat = await createChat([user.username, chatToCreate]);
       setSelectedChat(newChat);
       handleJoinChat(newChat._id);
       setChatToCreate('');
@@ -73,7 +73,7 @@ const useDirectMessage = () => {
   useEffect(() => {
     const fetchChats = async () => {
       // TODO: Task 3 - Fetch all the chats with the current user and update the state variable.
-      const userChats = await getChatsByUser(user._id!);
+      const userChats = await getChatsByUser(user.username);
       setChats(userChats);
     };
 
@@ -112,7 +112,7 @@ const useDirectMessage = () => {
       socket.off('chatUpdate', handleChatUpdate);
       socket.emit('leaveChat', selectedChat?._id);
     };
-  }, [user.username, user._id, socket, selectedChat?._id]);
+  }, [user.username, socket, selectedChat?._id]);
 
   return {
     selectedChat,

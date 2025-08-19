@@ -59,7 +59,7 @@ describe('Chat service', () => {
       expect(result).toHaveProperty('_id');
       expect(Array.isArray(result.participants)).toBe(true);
       expect(Array.isArray(result.messages)).toBe(true);
-      expect(result.participants).toEqual([testUserId]);
+      expect(result.participants).toEqual([testUserId.toString()]);
       expect(result.messages).toEqual([]);
     });
 
@@ -128,7 +128,7 @@ describe('Chat service', () => {
       mockingoose(ChatModel).toReturn(
         {
           _id: new mongoose.Types.ObjectId(),
-          participants: [testUserId],
+          participants: [testUserId.toString()],
           messages: [messageId],
           createdAt: new Date(),
           updatedAt: new Date(),
